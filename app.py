@@ -5,17 +5,24 @@ from scipy import stats
 st.title("Does p = 0.01 mean your result will replicate 99% of the time?")
 
 st.write("""
-You often hear: "If p = 0.01, this result is very reliable."
+In any one study, the effect is either real or it isn't.
 
-But does that mean it will replicate 99% of the time?
+But a very small p-value can happen in BOTH situations.
 
-Let's test that.
+Let's see what that means for replication.
 """)
 
 # -------------------------
 # Controls
 # -------------------------
 st.sidebar.header("Set the world")
+
+truth = st.sidebar.radio(
+    "Is there actually a real effect?",
+    ["No (nothing is happening)", "Yes (there is a real effect)"]
+)
+
+real = True if "Yes" in truth else False
 
 effect_size = st.sidebar.slider(
     "Effect size (if real)",
@@ -27,15 +34,8 @@ n = st.sidebar.slider(
     5, 100, 20
 )
 
-real = st.sidebar.radio(
-    "Is there actually a real effect?",
-    ["Yes", "No"]
-)
-
-real = True if real == "Yes" else False
-
 # -------------------------
-# Function
+# Experiment function
 # -------------------------
 def run_experiment(real):
     if real:
@@ -51,10 +51,11 @@ def run_experiment(real):
 # -------------------------
 # Run demo
 # -------------------------
-if st.button("Find a strong result (p < 0.01)"):
+if st.button("Search until you get a 'convincing' result (p < 0.01)"):
 
-    # Step 1: force a strong result
     attempts = 0
+
+    # Keep going until we get p < 0.01
     while True:
         p = run_experiment(real)
         attempts += 1
@@ -65,12 +66,26 @@ if st.button("Find a strong result (p < 0.01)"):
 
     st.write(f"You got p = {p:.3f}")
 
-    if real:
-        st.write("🎭 Hidden truth: There IS a real effect.")
-    else:
-        st.write("🎭 Hidden truth: There is NO real effect.")
 
-    # Step 2: replicate
+    # 🔥 Make the key distinction explicit
+    if real:
+        st.markdown("""
+### 🎯 Reality: there IS a real effect
+
+You found a strong result because something is actually there.
+""")
+    else:
+        st.markdown("""
+### 🎲 Reality: there is NO real effect
+
+👉 You got a very convincing result purely by chance.
+
+If you run enough studies, this will eventually happen.
+""")
+
+    # -------------------------
+    # Replication
+    # -------------------------
     replications = 200
     successes = 0
 
@@ -79,22 +94,46 @@ if st.button("Find a strong result (p < 0.01)"):
         if p_rep < 0.05:
             successes += 1
 
+    replication_rate = successes / replications
+
     st.markdown("---")
     st.subheader("Now repeat the same study many times")
 
     st.write(f"Out of {replications} new studies:")
     st.write(f"Significant results: {successes}")
 
-    replication_rate = successes / replications
-
     st.markdown(f"## 👉 Replication rate: {replication_rate:.2%}")
+
+    # 🔥 Drive the lesson home
+    if real:
+        st.markdown("""
+---
+
+Even though the effect is real, not every study detects it.
+
+👉 A small p-value does NOT mean the result will replicate 99% of the time.
+""")
+    else:
+        st.markdown("""
+---
+
+You started with a *very convincing* result (p < 0.01).
+
+But nothing is actually there.
+
+👉 Replication fails because the original result was just luck.
+
+This is what a false positive looks like.
+""")
 
     st.markdown("""
 ---
 
-You got a very small p-value.
+**Bottom line:**
 
-But that does NOT mean the result will replicate 99% of the time.
+A small p-value tells you how unusual THIS dataset is.
 
-The p-value describes how unusual THIS dataset is—not how often future studies succeed.
+It does NOT tell you:
+- whether the result is real
+- or how often it will replicate
 """)
