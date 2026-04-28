@@ -63,7 +63,6 @@ if st.button("Find a strong result (p < 0.01)"):
 
     st.subheader("Your study")
 
-    st.write(f"It took {attempts} tries to get a strong result.")
     st.write(f"You got p = {p:.3f}")
 
     if real:
