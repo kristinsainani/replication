@@ -51,7 +51,7 @@ def run_experiment(real):
 # -------------------------
 # Run demo
 # -------------------------
-if st.button("Run a study that gives p < 0.01"):
+if st.button("Run a study."):
 
     attempts = 0
 
